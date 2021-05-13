@@ -16,5 +16,8 @@
     "esm": "^3.2.25",
     "puppeteer": "^9.1.1",
     "puppeteer-video-recorder": "^1.0.3"
+  },
+  "devDependencies": {
+    "prettier": "2.3.0"
   }
 }
