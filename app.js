@@ -7,5 +7,5 @@ const recorder = require('./src/recorder');
 var args = process.argv.slice(2); // Removing 'node' and the name
                                   // of the program.
 
-console.log("Running with args ${args}")
-screenshot.Screenshot(args[0]);
+console.log(`Running with args ${args}`)
+recorder.Record(args[0], args[1]);
