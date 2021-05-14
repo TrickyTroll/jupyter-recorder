@@ -102,8 +102,23 @@ export async function RecordNotebook(pageURL, savePath) {
     );
 
     const delay = 3000;
+    // $$ means querySelectorAll
     const cells = await page.$$('.cell');
     const maxCell = cells.length;
+
+    // Going to first cell
+    console.log(cells)
+    await page.$eval('.cell', e => {
+            e.scrollIntoView();
+    });
+
+    // Restarting notebook and clearing output
+//    const [button] = await page.$x("//li[@id='restart_clear_output']/button[contains(., 'Restart & Clear Output')]");
+ //   if (button) {
+  //          await button.click();
+   // }
+
+    // Start taking screenshots.
     let count = 0;
     await screenshots.init(page, savePath);
     await screenshots.start();
@@ -113,65 +128,11 @@ export async function RecordNotebook(pageURL, savePath) {
       });
       count++;
     } while (maxCell > count);
-    await page.waitFor(delay);
-    // $$ means querySelectorAll
-    //const cells = await page.$$('.cell');
-    //var hrefElement = cells[0]
-    //await hrefElement.focus();
-    //hrefElement = cells[5]
-    //await delay(4000)
-    //await hrefElement.focus();
-    await screenshots.stop();
+    await page.waitForTimeout(delay);
 
+    // Closing
+    await screenshots.stop();
     await browser.close();
   })();
 }
 
-export async function otherRecordNotebook(pageURL, savePath) {
-    (async () => {
-        const browser = await puppeteer.launch({
-            headless: true
-        });
-        const page = await browser.newPage();
-        await page.goto(
-            "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
-            {"waitUntil" : "networkidle2"}
-        );
-        await page.goto(
-          "http://localhost:8888/notebooks/python_by_example.ipynb",
-          {"waitUntil" : "networkidle0"}
-        );
-        await page.setViewport({
-            width: 1200,
-            height: 800
-        });
-
-        await autoScroll(page);
-
-        await page.screenshot({
-            path: 'yoursite.png',
-            fullPage: true
-        });
-
-        await browser.close();
-    })();
-
-    async function autoScroll(page){
-        await page.evaluate(async () => {
-            await new Promise((resolve, reject) => {
-                var totalHeight = 0;
-                var distance = 100;
-                var timer = setInterval(() => {
-                    var scrollHeight = document.body.scrollHeight;
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
-
-                    if(totalHeight >= scrollHeight){
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 100);
-            });
-        });
-    }
-}
