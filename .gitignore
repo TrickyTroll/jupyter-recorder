@@ -13,3 +13,11 @@ yarn-error.log*
 .eslintcache
 examples/
 
+# Video folder
+toto/
+
+# Other screenshots
+*.png
+*.jpg
+*.jpeg
+
