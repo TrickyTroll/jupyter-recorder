@@ -3,10 +3,6 @@ const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
 
 async function getAllCells(page) {
   // page is an object created by the browser.
-  const cells = await page.evaluate(() => {
-    return document.getElementsByClassName("cell");
-  });
-  return cells;
 }
 
 function isTextCell(cell) {
@@ -27,12 +23,12 @@ async function scrollTo(page, secondCell) {
 }
 
 async function unselectAll(page) {
-    await page.evaluate(() => {
-        cells = document.getElementsByClassName("cell");
-        for (let k=0; k<cells.length; k++) {
-            cells[k].classList.remove("selected");
-        }
-    });
+  await page.evaluate(() => {
+    cells = document.getElementsByClassName("cell");
+    for (let k = 0; k < cells.length; k++) {
+      cells[k].classList.remove("selected");
+    }
+  });
 }
 
 async function recordTransition(page, videoPath, firstCell, secondCell) {
@@ -46,46 +42,136 @@ async function recordTransition(page, videoPath, firstCell, secondCell) {
 }
 
 function recordCodeCell(page, videoPath, cell) {
-    // Cell shoud be an indice in the array of all cells.
+  // Cell shoud be an indice in the array of all cells.
   (async () => {
     await screenshots.init(page, videosPath);
     await screenshots.start();
     await unselectAll(page); // Making sure that no cell is selected.
     await page.evaluate(() => {
-        var allCells = document.getElementByClassName("cell");
-        var toRecord = allCells[cell];
-        toRecord.classList.add("selected") // Selecting the cell before running.
-        document.getElementById("run_int").children[0].click() // Pressing run.
+      var allCells = document.getElementByClassName("cell");
+      var toRecord = allCells[cell];
+      toRecord.classList.add("selected"); // Selecting the cell before running.
+      document.getElementById("run_int").children[0].click(); // Pressing run.
 
-        function addClassNameListener(elem) {
-            var lastClassName = elem.className;
-            window.setInterval( function() {   
-               var className = elem.className;
-                if (className !== lastClassName) {
-                    return 1
-                    lastClassName = className;
-                }
-            },10);
-        }
+      function addClassNameListener(elem) {
+        var lastClassName = elem.className;
+        window.setInterval(function () {
+          var className = elem.className;
+          if (className !== lastClassName) {
+            return 1;
+            lastClassName = className;
+          }
+        }, 10);
+      }
 
-        addClassNameListener(toRecord); // Should wait until cell is
-        // done running.
+      addClassNameListener(toRecord); // Should wait until cell is
+      // done running.
     });
     await screenshots.stop();
   })();
 }
 
-function recordTextCell(page, videoPath, cell) {
-  // Take a screenshot
-  return 1
+function delay(time) {
+   return new Promise(function(resolve) { 
+       setTimeout(resolve, time)
+   });
+}
+
+async function getCount(page) {
+  return await page.$$eval('.cell', a => a.length);
+}
+
+async function scrollDown(page) {
+  await page.$eval('.cell:last-child', e => {
+    e.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
+  });
 }
 
 export async function RecordNotebook(pageURL, savePath) {
-  // Loading page contents
-  const browser = await puppeteer.launch({ headless: true });
-  const page = (await browser.pages())[0];
-  const screenshots = new PuppeteerMassScreenshots();
-  page.goto(pageURL);
-  var allCells = GetAllCells(page);
-  allCells.forEach(recordCell);
+  (async () => {
+    const screenshots = new PuppeteerMassScreenshots();
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(
+        "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
+        {"waitUntil" : "networkidle2"}
+    );
+    await page.goto(
+      "http://localhost:8888/notebooks/python_by_example.ipynb",
+      {"waitUntil" : "networkidle0"}
+    );
+
+    const delay = 3000;
+    const cells = await page.$$('.cell');
+    const maxCell = cells.length;
+    let count = 0;
+    await screenshots.init(page, savePath);
+    await screenshots.start();
+    do {
+      await page.$eval('.cell:last-child', e => {
+        e.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
+      });
+      count++;
+    } while (maxCell > count);
+    await page.waitFor(delay);
+    // $$ means querySelectorAll
+    //const cells = await page.$$('.cell');
+    //var hrefElement = cells[0]
+    //await hrefElement.focus();
+    //hrefElement = cells[5]
+    //await delay(4000)
+    //await hrefElement.focus();
+    await screenshots.stop();
+
+    await browser.close();
+  })();
+}
+
+export async function otherRecordNotebook(pageURL, savePath) {
+    (async () => {
+        const browser = await puppeteer.launch({
+            headless: true
+        });
+        const page = await browser.newPage();
+        await page.goto(
+            "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
+            {"waitUntil" : "networkidle2"}
+        );
+        await page.goto(
+          "http://localhost:8888/notebooks/python_by_example.ipynb",
+          {"waitUntil" : "networkidle0"}
+        );
+        await page.setViewport({
+            width: 1200,
+            height: 800
+        });
+
+        await autoScroll(page);
+
+        await page.screenshot({
+            path: 'yoursite.png',
+            fullPage: true
+        });
+
+        await browser.close();
+    })();
+
+    async function autoScroll(page){
+        await page.evaluate(async () => {
+            await new Promise((resolve, reject) => {
+                var totalHeight = 0;
+                var distance = 100;
+                var timer = setInterval(() => {
+                    var scrollHeight = document.body.scrollHeight;
+                    window.scrollBy(0, distance);
+                    totalHeight += distance;
+
+                    if(totalHeight >= scrollHeight){
+                        clearInterval(timer);
+                        resolve();
+                    }
+                }, 100);
+            });
+        });
+    }
 }
