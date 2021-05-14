@@ -32,31 +32,52 @@ async function unselectAll(page) {
         for (let k=0; k<cells.length; k++) {
             cells[k].classList.remove("selected");
         }
-    }
+    });
 }
 
 async function recordTransition(page, videoPath, firstCell, secondCell) {
   (async () => {
     await screenshots.init(page, videosPath);
     await screenshots.start();
-    await scrollTo(page, secondCell);
+    await scrollTo(page, secondCell); // I think this is how it works..
     await screenshots.stop();
     await browser.close();
   })();
 }
 
 function recordCodeCell(page, videoPath, cell) {
+    // Cell shoud be an indice in the array of all cells.
   (async () => {
     await screenshots.init(page, videosPath);
     await screenshots.start();
-    await scrollTo(page, secondCell);
+    await unselectAll(page); // Making sure that no cell is selected.
+    await page.evaluate(() => {
+        var allCells = document.getElementByClassName("cell");
+        var toRecord = allCells[cell];
+        toRecord.classList.add("selected") // Selecting the cell before running.
+        document.getElementById("run_int").children[0].click() // Pressing run.
+
+        function addClassNameListener(elem) {
+            var lastClassName = elem.className;
+            window.setInterval( function() {   
+               var className = elem.className;
+                if (className !== lastClassName) {
+                    return 1
+                    lastClassName = className;
+                }
+            },10);
+        }
+
+        addClassNameListener(toRecord); // Should wait until cell is
+        // done running.
+    });
     await screenshots.stop();
-    await browser.close();
   })();
 }
 
 function recordTextCell(page, videoPath, cell) {
   // Take a screenshot
+  return 1
 }
 
 export async function RecordNotebook(pageURL, savePath) {
