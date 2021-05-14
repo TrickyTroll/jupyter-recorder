@@ -72,18 +72,18 @@ function recordCodeCell(page, videoPath, cell) {
 }
 
 function delay(time) {
-   return new Promise(function(resolve) { 
-       setTimeout(resolve, time)
-   });
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
 }
 
 async function getCount(page) {
-  return await page.$$eval('.cell', a => a.length);
+  return await page.$$eval(".cell", (a) => a.length);
 }
 
 async function scrollDown(page) {
-  await page.$eval('.cell:last-child', e => {
-    e.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
+  await page.$eval(".cell:last-child", (e) => {
+    e.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
   });
 }
 
@@ -93,38 +93,39 @@ export async function RecordNotebook(pageURL, savePath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(
-        "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
-        {"waitUntil" : "networkidle2"}
+      "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
+      { waitUntil: "networkidle2" }
     );
-    await page.goto(
-      "http://localhost:8888/notebooks/python_by_example.ipynb",
-      {"waitUntil" : "networkidle0"}
-    );
+    await page.goto("http://localhost:8888/notebooks/python_by_example.ipynb", {
+      waitUntil: "networkidle0",
+    });
 
     const delay = 3000;
     // $$ means querySelectorAll
-    const cells = await page.$$('.cell');
+    const cells = await page.$$(".cell");
     const maxCell = cells.length;
 
     // Going to first cell
-    console.log(cells)
-    await page.$eval('.cell', e => {
-            e.scrollIntoView();
+    console.log(cells);
+    await page.$eval(".cell", (e) => {
+      e.scrollIntoView();
     });
 
     // Restarting notebook and clearing output
-//    const [button] = await page.$x("//li[@id='restart_clear_output']/button[contains(., 'Restart & Clear Output')]");
- //   if (button) {
-  //          await button.click();
-   // }
+    const [button] = await page.$x(
+      "//li[@id='restart_clear_output']/button[contains(., 'Restart & Clear Output')]"
+    );
+    if (button) {
+      await button.click();
+    }
 
     // Start taking screenshots.
     let count = 0;
     await screenshots.init(page, savePath);
     await screenshots.start();
     do {
-      await page.$eval('.cell:last-child', e => {
-        e.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
+      await page.$eval(".cell:last-child", (e) => {
+        e.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
       });
       count++;
     } while (maxCell > count);
@@ -135,4 +136,3 @@ export async function RecordNotebook(pageURL, savePath) {
     await browser.close();
   })();
 }
-
