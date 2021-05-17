@@ -93,8 +93,8 @@ export async function RecordNotebook(pageURL, savePath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(
-      "http://localhost:8888/?token=640159a8f93e4f8a5c8a882f790210743e2d6bcf3568ebef",
-      { waitUntil: "networkidle2" }
+      pageURL,
+      { waitUntil: "networkidle0" }
     );
     await page.goto("http://localhost:8888/notebooks/python_by_example.ipynb", {
       waitUntil: "networkidle0",
@@ -104,6 +104,7 @@ export async function RecordNotebook(pageURL, savePath) {
     // $$ means querySelectorAll
     const cells = await page.$$(".cell");
     const maxCell = cells.length;
+    page.screenshot( {path: "example.png"} )
 
     // Going to first cell
     console.log(cells);
