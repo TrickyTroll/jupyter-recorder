@@ -1,5 +1,5 @@
 {
-  "name": "jupyter-audio-book",
+  "name": "jupyter-recorder",
   "version": "1.0.0",
   "description": "Recording videos from jupyter notebooks.",
   "main": "app.js",
