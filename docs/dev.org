@@ -1,0 +1,37 @@
+#+TITLE: Developper documentation
+
+#+BEGIN_QUOTE
+Please note that this documentation is a work in progress.
+#+END_QUOTE
+
+* Making a video
+
+** ~ffmpeg~
+
+To create a video, ~ffmpeg~ can be used to concatenate many screenshots
+in a single ~mp4~ file. To do so, use the following command:
+
+#+BEGIN_SRC <shell>
+ffmpeg -f concat -safe 0 -i toto.txt -framerate 60 foobar.mp4
+#+END_SRC
+
+This command will take the file ~toto.txt~ as an input to know what files
+need to be concatenated and in what order.
+
+** Producing the sorted file
+
+To create the file used by ~ffmpeg~, the ouput of the ~recorder~ command
+can be parsed and piped in a text file. By default, ~recorder~ ouputs the
+full paths towards the screenshots[fn:1]. Since the instruction file will be in
+the same directory as the screenshots, only the filenames are required.
+
+To parse the output, ~awk~ can be used like so:
+
+#+BEGIN_SRC <shell>
+awk '{ if ($1 != "Running"); split($1,line,"/"); printf "file %s\n", line[2];}' > toto/toto.txt
+#+END_SRC
+
+* Footnotes
+
+[fn:1] This is due to the [[https://www.npmjs.com/package/puppeteer-mass-screenshots][library]] used by the ~recorder~ to capture
+screenshots.
