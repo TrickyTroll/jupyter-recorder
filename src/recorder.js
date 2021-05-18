@@ -2,17 +2,6 @@ const puppeteer = require("puppeteer");
 const fs = require('fs')
 const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
 
-function isTextCell(cell) {
-  // cell should be an element of the array returned by
-  // GetAllCells
-  var allClasses = cell.classList;
-  if (allClasses.contains("text_cell")) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 async function scrollTo(page, secondCell) {
   await page.evaluate(() => {
     secondCell.scrollIntoView();
