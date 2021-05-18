@@ -55,15 +55,13 @@ async function scrollDown(page) {
   });
 }
 
-async function getCodeCells(page) {
-  const allCells = page.$$(".cell");
-  return allCells;
-}
-
 async function selectCell(page, cell) {
   // `cell` is an element of `page`.
   // Unselects all cells and selects just one.
-  await page.$$eval(".cells", (cell) => cell.classList.remove("selected"));
+  await page.evaluate(() => {
+    allCells = document.querySelectorAll(".cell")
+    allCells.forEach(function(cell){cell.classList.remove('selected')});
+  });
   // Select cell at index `cell`.
   await page.evaluate((cell) => {
     cell.classList.add("selected");
@@ -73,8 +71,8 @@ async function selectCell(page, cell) {
 async function runCell(page, cellIndex) {
   // `cellIndex` should be an index in the list that contains
   // every cell.
-  let all = getCodeCells(page);
-  let todo = all[cellIndex];
+  const allCells = page.$$(".code_cell")
+  let todo = allCells[cellIndex];
   console.log(`Using cell ${todo}`);
   // Selecting cell
   selectCell(page, todo);
@@ -95,24 +93,14 @@ async function runCell(page, cellIndex) {
   }
 }
 
-function createDirectories(pathname) {
-   const __dirname = path.resolve();
-   pathname = pathname.replace(/^\.*\/|\/?[^\/]+\.[a-z]+|\/$/g, ''); // Remove leading directory markers, and remove ending /file-name.extension
-   fs.mkdir(path.resolve(__dirname, pathname), { recursive: true }, e => {
-       if (e) {
-           console.error(e);
-       } else {
-           console.log('Success');
-       }
-    });
-}
-
 function makeRequiredDirs(projectRoot, maxCodeCell) {
   if (projectRoot.slice(-1) !== "/") {
     projectRoot += "/"
   }
   for(var i=0; i<maxCodeCell; i++) {
-    createDirectories(projectRoot + `cell_${maxCodeCell}`)
+    fs.mkdir(projectRoot + `cell_${maxCodeCell}`, {recursive: true}, (err) => {
+      if (err) throw err;
+    });
   }
 }
 
@@ -175,7 +163,7 @@ export async function recordAllCode(pageURL, savePath) {
     const delay = 3000;
     // $$ means querySelectorAll
     const codeCells = await page.$$(".code_cell");
-    const maxCell = cells.length;
+    const maxCell = codeCells.length;
     makeRequiredDirs(savePath, maxCell);
 
     // Going to first code cell
