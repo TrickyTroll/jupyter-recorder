@@ -1,10 +1,6 @@
 const puppeteer = require("puppeteer");
 const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
 
-async function getAllCells(page) {
-  // page is an object created by the browser.
-}
-
 function isTextCell(cell) {
   // cell should be an element of the array returned by
   // GetAllCells
@@ -41,36 +37,6 @@ async function recordTransition(page, videoPath, firstCell, secondCell) {
   })();
 }
 
-function recordCodeCell(page, videoPath, cell) {
-  // Cell shoud be an indice in the array of all cells.
-  (async () => {
-    await screenshots.init(page, videosPath);
-    await screenshots.start();
-    await unselectAll(page); // Making sure that no cell is selected.
-    await page.evaluate(() => {
-      var allCells = document.getElementByClassName("cell");
-      var toRecord = allCells[cell];
-      toRecord.classList.add("selected"); // Selecting the cell before running.
-      document.getElementById("run_int").children[0].click(); // Pressing run.
-
-      function addClassNameListener(elem) {
-        var lastClassName = elem.className;
-        window.setInterval(function () {
-          var className = elem.className;
-          if (className !== lastClassName) {
-            return 1;
-            lastClassName = className;
-          }
-        }, 10);
-      }
-
-      addClassNameListener(toRecord); // Should wait until cell is
-      // done running.
-    });
-    await screenshots.stop();
-  })();
-}
-
 function delay(time) {
   return new Promise(function (resolve) {
     setTimeout(resolve, time);
@@ -82,6 +48,7 @@ async function getCount(page) {
 }
 
 async function scrollDown(page) {
+  // Scrolls down to the last cell.
   await page.$eval(".cell:last-child", (e) => {
     e.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
   });
