@@ -130,7 +130,6 @@ export async function recordNotebook(pageURL, savePath) {
     // $$ means querySelectorAll
     const cells = await page.$$(".cell");
     const maxCell = cells.length;
-    page.screenshot({ path: "example.png" });
 
     // Going to first cell
     await page.$eval(".cell", (e) => {
