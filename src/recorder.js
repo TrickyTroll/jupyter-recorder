@@ -87,6 +87,38 @@ async function scrollDown(page) {
   });
 }
 
+async function getCodeCells(page) {
+  const allCells = page.$$(".cell");
+  return allCells
+}
+
+async function selectCell(page, cell) {
+  // `cell` is an element of `page`.
+  // Unselects all cells and selects just one.
+  await page.$$eval(".cells", cell => cell.classList.remove("selected"));
+  // Select cell at index `cell`.
+  await page.evaluate((cell) => {
+    cell.classList.add("selected"));
+                    });
+}
+
+async function runCell(page, cellIndex) {
+  // `cellIndex` should be an index in the list that contains
+  // every cell.
+  let all = getCodeCells(page);
+  let todo = all[cellIndex];
+  console.log(`Using cell ${todo}`)
+
+  // Running a cell
+  const [button] = await page.$x( // This is the `run` button.
+    "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
+  );
+  if (button) {
+    console.log("Running cell");
+    button.click();
+  }
+}
+
 export async function RecordNotebook(pageURL, savePath) {
   (async () => {
     const screenshots = new PuppeteerMassScreenshots();
@@ -107,18 +139,17 @@ export async function RecordNotebook(pageURL, savePath) {
     page.screenshot( {path: "example.png"} )
 
     // Going to first cell
-    console.log(cells);
     await page.$eval(".cell", (e) => {
       e.scrollIntoView();
     });
 
-    // Restarting notebook and clearing output
-    const [button] = await page.$x(
-      "//li[@id='restart_clear_output']/button[contains(., 'Restart & Clear Output')]"
-    );
-    if (button) {
-      await button.click();
-    }
+    // Clearing all output
+    // The Kernel is restarted using Python, not this program.
+    await page.$$eval(".output", (e) => {
+      for(var i=0; i<e.length; i++) {
+        e[i].parentNode.removeChild(e[i]);
+      }
+    });
 
     // Start taking screenshots.
     let count = 0;
