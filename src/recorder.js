@@ -89,7 +89,7 @@ async function runCell(page, cellIndex) {
   }
 }
 
-export async function RecordNotebook(pageURL, savePath) {
+export async function recordNotebook(pageURL, savePath) {
   (async () => {
     const screenshots = new PuppeteerMassScreenshots();
     const browser = await puppeteer.launch();
