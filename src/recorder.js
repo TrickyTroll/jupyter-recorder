@@ -108,7 +108,7 @@ function createDirectories(pathname) {
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
-  if projectRoot[-1] !== "/"{
+  if (projectRoot.slice(-1) !== "/") {
     projectRoot += "/"
   }
   for(var i=0; i<maxCodeCell; i++) {
@@ -177,6 +177,7 @@ export async function recordAllCode(pageURL, savePath) {
     // $$ means querySelectorAll
     const codeCells = await page.$$(".code_cell");
     const maxCell = cells.length;
+    makeRequiredDirs(savePath, maxCell);
 
     // Going to first code cell
     await page.$eval(".code_cell", (e) => {
