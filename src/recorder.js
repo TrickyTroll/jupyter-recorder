@@ -108,6 +108,8 @@ async function runCell(page, cellIndex) {
   let all = getCodeCells(page);
   let todo = all[cellIndex];
   console.log(`Using cell ${todo}`);
+  // Selecting cell
+  selectCell(page, todo);
 
   // Running a cell
   const [button] = await page.$x(
