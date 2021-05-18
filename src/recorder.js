@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const fs = require('fs')
 const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
 
 function isTextCell(cell) {
@@ -78,6 +79,11 @@ async function runCell(page, cellIndex) {
   // Selecting cell
   selectCell(page, todo);
 
+  // Scroll cell into view
+  await page.evaluate((todo) => {
+    todo.scrollIntoView();
+  });
+
   // Running a cell
   const [button] = await page.$x(
     // This is the `run` button.
@@ -86,6 +92,27 @@ async function runCell(page, cellIndex) {
   if (button) {
     console.log("Running cell");
     button.click();
+  }
+}
+
+function createDirectories(pathname) {
+   const __dirname = path.resolve();
+   pathname = pathname.replace(/^\.*\/|\/?[^\/]+\.[a-z]+|\/$/g, ''); // Remove leading directory markers, and remove ending /file-name.extension
+   fs.mkdir(path.resolve(__dirname, pathname), { recursive: true }, e => {
+       if (e) {
+           console.error(e);
+       } else {
+           console.log('Success');
+       }
+    });
+}
+
+function makeRequiredDirs(projectRoot, maxCodeCell) {
+  if projectRoot[-1] !== "/"{
+    projectRoot += "/"
+  }
+  for(var i=0; i<maxCodeCell; i++) {
+    createDirectories(projectRoot + `cell_${maxCodeCell}`)
   }
 }
 
@@ -132,6 +159,50 @@ export async function recordNotebook(pageURL, savePath) {
 
     // Closing
     await screenshots.stop();
+    await browser.close();
+  })();
+}
+
+export async function recordAllCode(pageURL, savePath) {
+  (async () => {
+    const screenshots = new PuppeteerMassScreenshots();
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(pageURL, { waitUntil: "networkidle0" });
+    await page.goto("http://localhost:8888/notebooks/python_by_example.ipynb", {
+      waitUntil: "networkidle0",
+    });
+
+    const delay = 3000;
+    // $$ means querySelectorAll
+    const codeCells = await page.$$(".code_cell");
+    const maxCell = cells.length;
+
+    // Going to first code cell
+    await page.$eval(".code_cell", (e) => {
+      e.scrollIntoView();
+    });
+
+    // Clearing all output
+    // The Kernel is restarted using Python, not this program.
+    await page.$$eval(".output", (e) => {
+      for (var i = 0; i < e.length; i++) {
+        e[i].parentNode.removeChild(e[i]);
+      }
+    });
+
+    // Start taking screenshots.
+    for (var i=0; i<codeCells.length; i++) {
+      let fullSavePath = savePath + `cell_${i}`;
+      await screenshots.init(page, fullSavePath);
+      await screenshots.start();
+      runCell(page, i);
+      await screenshots.stop();
+    }
+    // Not sure why this next line is needed.
+    await page.waitForTimeout(delay);
+
+    // Closing
     await browser.close();
   })();
 }
