@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-const fs = require('fs')
+const fs = require('fs');
 const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
 
 async function scrollTo(page, secondCell) {
@@ -47,29 +47,23 @@ async function scrollDown(page) {
 async function selectCell(page, cell) {
   // `cell` is an element of `page`.
   // Unselects all cells and selects just one.
-  await page.evaluate(() => {
-    allCells = document.querySelectorAll(".cell")
-    allCells.forEach(function(cell){cell.classList.remove('selected')});
-  });
+  unselectAll(page);
   // Select cell at index `cell`.
-  await page.evaluate((cell) => {
-    cell.classList.add("selected");
-  });
+  await page.evaluate((element) => element.classList.add("selected"), cell);
 }
 
 async function runCell(page, cellIndex) {
   // `cellIndex` should be an index in the list that contains
   // every cell.
-  const allCells = page.$$(".code_cell")
+  const allCells = await page.$$(".code_cell");
   let todo = allCells[cellIndex];
-  console.log(`Using cell ${todo}`);
   // Selecting cell
   selectCell(page, todo);
 
   // Scroll cell into view
-  await page.evaluate((todo) => {
-    todo.scrollIntoView();
-  });
+  await page.evaluate((element) => {
+    element.scrollIntoView();
+  }, todo);
 
   // Running a cell
   const [button] = await page.$x(
@@ -77,17 +71,18 @@ async function runCell(page, cellIndex) {
     "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
   );
   if (button) {
-    console.log("Running cell");
     button.click();
+    console.log("pressed run");
   }
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
   if (projectRoot.slice(-1) !== "/") {
-    projectRoot += "/"
+    projectRoot += "/";
   }
+  debugger;
   for(var i=0; i<maxCodeCell; i++) {
-    fs.mkdir(projectRoot + `cell_${maxCodeCell}`, {recursive: true}, (err) => {
+    fs.mkdir(projectRoot + `cell_${i}`, {recursive: true}, (err) => {
       if (err) throw err;
     });
   }
@@ -156,9 +151,7 @@ export async function recordAllCode(pageURL, savePath) {
     makeRequiredDirs(savePath, maxCell);
 
     // Going to first code cell
-    await page.$eval(".code_cell", (e) => {
-      e.scrollIntoView();
-    });
+    await page.$eval(".code_cell", (element) => element.scrollIntoView());
 
     // Clearing all output
     // The Kernel is restarted using Python, not this program.
@@ -168,6 +161,10 @@ export async function recordAllCode(pageURL, savePath) {
       }
     });
 
+    // Fixing save path
+    if (savePath.split(-1) !== "/") {
+      savePath += "/";
+    }
     // Start taking screenshots.
     for (var i=0; i<codeCells.length; i++) {
       let fullSavePath = savePath + `cell_${i}`;
