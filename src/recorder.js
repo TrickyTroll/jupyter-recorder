@@ -71,8 +71,12 @@ async function runCell(page, cellIndex) {
     "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
   );
   if (button) {
-    button.click();
-    console.log("pressed run");
+    await Promise.all([
+      button.click(),
+      page.waitForNavigation({
+        waitUntil: "networkidle0",
+      }),
+    ]);
   }
 }
 
