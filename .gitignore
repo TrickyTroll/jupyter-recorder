@@ -27,3 +27,5 @@ samples/
 # Python venv
 .venv/
 
+# Vscode config
+.vscode/
