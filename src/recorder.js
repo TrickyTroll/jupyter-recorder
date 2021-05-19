@@ -116,14 +116,6 @@ export async function recordNotebook(pageURL, savePath) {
       e.scrollIntoView();
     });
 
-    // Clearing all output
-    // The Kernel is restarted using Python, not this program.
-    await page.$$eval(".output", (e) => {
-      for (var i = 0; i < e.length; i++) {
-        e[i].parentNode.removeChild(e[i]);
-      }
-    });
-
     // Start taking screenshots.
     let count = 0;
     await screenshots.init(page, savePath);
@@ -161,14 +153,17 @@ export async function recordAllCode(pageURL, savePath) {
     // Going to first code cell
     await page.$eval(".code_cell", (element) => element.scrollIntoView());
 
-    // Clearing all output
-    // The Kernel is restarted using Python, not this program.
-    await page.$$eval(".output", (e) => {
-      for (var i = 0; i < e.length; i++) {
-        e[i].parentNode.removeChild(e[i]);
-      }
+    // Kernel needs to be restarted each run (and all output cleared)
+    // Python program will probably spawn a new kernel each time.
+    debugger;
+    await page.evaluate(() => {
+      let kernel = document.querySelector("#kernellink");
+      kernel.click();
+      let restart = document.querySelector("#restart_clear_output > a:nth-child(1)")
+      restart.click();
     });
-
+    await page.waitFor(2000);
+    await page.$eval('body > div.modal.fade.in > div > div > div.modal-footer > button.btn.btn-default.btn-sm.btn-danger', elem => elem.click());
     // Fixing save path
     if (savePath.split(-1) !== "/") {
       savePath += "/";
