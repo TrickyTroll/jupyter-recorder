@@ -73,9 +73,11 @@ async function runCell(page, cellIndex) {
   if (button) {
     await Promise.all([
       button.click(),
-      page.waitForNavigation({
-        waitUntil: "networkidle0",
-      }),
+      page.waitForFunction(
+        (cell) => { // Cell is an element in the document.
+          let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
+          inVal.split("")[2] !== " "; // This is true when cell is done running.
+        })
     ]);
   }
 }
@@ -84,7 +86,6 @@ function makeRequiredDirs(projectRoot, maxCodeCell) {
   if (projectRoot.slice(-1) !== "/") {
     projectRoot += "/";
   }
-  debugger;
   for(var i=0; i<maxCodeCell; i++) {
     fs.mkdir(projectRoot + `cell_${i}`, {recursive: true}, (err) => {
       if (err) throw err;
@@ -175,6 +176,7 @@ export async function recordAllCode(pageURL, savePath) {
       await screenshots.init(page, fullSavePath);
       await screenshots.start();
       runCell(page, i);
+      await page.waitForTimeout(delay);
       await screenshots.stop();
     }
     // Not sure why this next line is needed.
