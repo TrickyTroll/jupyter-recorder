@@ -53,8 +53,8 @@ async function selectCell(page, cell) {
 }
 
 async function goToNext(page, cellIndex) {
-  const allCells = await page.$$(".code_cell");
-  let todo = allCells[cellIndex];
+  const allCodeCells = await page.$$(".code_cell");
+  let todo = allCodeCells[cellIndex];
   await page.evaluate((element) => {
     element.scrollIntoView();
   }, todo);
@@ -168,11 +168,12 @@ export async function recordAllCode(pageURL, savePath) {
     if (savePath.split(-1) !== "/") {
       savePath += "/";
     }
-    // Start taking screenshots.
+    // For every code cell
     for (var i=0; i<codeCells.length; i++) {
       let fullSavePath = savePath + `cell_${i}`;
       goToNext(page, i);
       await screenshots.init(page, fullSavePath);
+      // Start taking screenshots.
       await screenshots.start();
       runCell(page, i);
       await page.waitForTimeout(delay);
