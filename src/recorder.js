@@ -1,6 +1,6 @@
-const puppeteer = require("puppeteer");
-const fs = require('fs');
-const PuppeteerMassScreenshots = require("puppeteer-mass-screenshots");
+import puppeteer from "puppeteer";
+import fs from 'fs';
+import PuppeteerMassScreenshots from "puppeteer-mass-screenshots";
 
 async function scrollTo(page, secondCell) {
     await page.evaluate(() => {
@@ -74,15 +74,13 @@ async function runCell(page, cellIndex) {
         "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
     );
     if (button) {
-        await Promise.all([
-            button.click(), // TODO: wait for cell completion.
+        button.click(); // TODO: wait for cell completion.
+    }
             // page.waitForFunction( // This does not work for now
             //   (cell) => { // Cell is an element in the document.
             //     let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
             //     inVal.split("")[2] !== " "; // This is true when cell is done running.
             //   }, todo)
-        ]);
-    }
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
@@ -96,7 +94,7 @@ function makeRequiredDirs(projectRoot, maxCodeCell) {
     }
 }
 
-export async function recordNotebook(pageURL, savePath) {
+async function recordNotebook(pageURL, savePath) {
     (async () => {
         const screenshots = new PuppeteerMassScreenshots();
         const browser = await puppeteer.launch();
@@ -134,7 +132,7 @@ export async function recordNotebook(pageURL, savePath) {
     })();
 }
 
-export async function recordAllCode(pageURL, savePath) {
+async function recordAllCode(pageURL, savePath) {
     (async () => {
         const screenshots = new PuppeteerMassScreenshots();
         const browser = await puppeteer.launch({ headless: false });
@@ -186,3 +184,5 @@ export async function recordAllCode(pageURL, savePath) {
         await browser.close();
     })();
 }
+
+export { recordAllCode };

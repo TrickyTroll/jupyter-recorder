@@ -11,10 +11,11 @@
   },
   "author": "Etienne Parent",
   "license": "MIT",
-  "type": "common",
+  "type": "module",
   "dependencies": {
     "esm": "^3.2.25",
     "puppeteer": "^9.1.1",
+    "puppeteer-mass-screenshots": "^1.0.15",
     "puppeteer-video-recorder": "^1.0.3"
   },
   "devDependencies": {

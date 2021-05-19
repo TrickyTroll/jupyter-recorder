@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-
-require = require("esm")(module);
-import screenshot from "./src/screenshot";
-import { recordAllCode } from "./src/recorder";
+import { recordAllCode } from './src/recorder.js';
 
 var args = process.argv.slice(2); // Removing 'node' and the name
 // of the program.
 
+debugger;
 console.log(`Running with args ${args}`);
 recordAllCode(args[0], args[1]);
