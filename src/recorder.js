@@ -76,11 +76,11 @@ async function runCell(page, cellIndex) {
     if (button) {
         button.click(); // TODO: wait for cell completion.
     }
-            // page.waitForFunction( // This does not work for now
-            //   (cell) => { // Cell is an element in the document.
-            //     let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
-            //     inVal.split("")[2] !== " "; // This is true when cell is done running.
-            //   }, todo)
+    page.waitForFunction( // This does not work for now
+        (cell) => { // Cell is an element in the document.
+        let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
+        inVal.split("")[2] !== " "; // This is true when cell is done running.
+        }, todo); // Passing `todo` as the `cell` argument.
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
@@ -162,6 +162,8 @@ async function recordAllCode(pageURL, savePath) {
         });
         await page.waitForTimeout(2000);
         await page.$eval('body > div.modal.fade.in > div > div > div.modal-footer > button.btn.btn-default.btn-sm.btn-danger', elem => elem.click());
+        // TODO: I should wait for something better than a timeout.
+        await page.waitForTimeout(5000); // Waiting for the kernel to restart
         // Fixing save path
         if (savePath.split(-1) !== "/") {
             savePath += "/";
