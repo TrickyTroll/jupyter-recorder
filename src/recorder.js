@@ -52,6 +52,14 @@ async function selectCell(page, cell) {
   await page.evaluate((element) => element.classList.add("selected"), cell);
 }
 
+async function goToNext(page, cellIndex) {
+  const allCells = await page.$$(".code_cell");
+  let todo = allCells[cellIndex];
+  await page.evaluate((element) => {
+    element.scrollIntoView();
+  }, todo);
+}
+
 async function runCell(page, cellIndex) {
   // `cellIndex` should be an index in the list that contains
   // every cell.
@@ -60,11 +68,6 @@ async function runCell(page, cellIndex) {
   // Selecting cell
   selectCell(page, todo);
 
-  // Scroll cell into view
-  await page.evaluate((element) => {
-    element.scrollIntoView();
-  }, todo);
-
   // Running a cell
   const [button] = await page.$x(
     // This is the `run` button.
@@ -72,12 +75,12 @@ async function runCell(page, cellIndex) {
   );
   if (button) {
     await Promise.all([
-      button.click(),
-      page.waitForFunction(
-        (cell) => { // Cell is an element in the document.
-          let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
-          inVal.split("")[2] !== " "; // This is true when cell is done running.
-        })
+      button.click(), // TODO: wait for cell completion.
+      // page.waitForFunction( // This does not work for now
+      //   (cell) => { // Cell is an element in the document.
+      //     let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
+      //     inVal.split("")[2] !== " "; // This is true when cell is done running.
+      //   }, todo)
     ]);
   }
 }
@@ -142,7 +145,7 @@ export async function recordNotebook(pageURL, savePath) {
 export async function recordAllCode(pageURL, savePath) {
   (async () => {
     const screenshots = new PuppeteerMassScreenshots();
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch( {headless: false} );
     const page = await browser.newPage();
     await page.goto(pageURL, { waitUntil: "networkidle0" });
     await page.goto("http://localhost:8888/notebooks/python_by_example.ipynb", {
@@ -173,6 +176,7 @@ export async function recordAllCode(pageURL, savePath) {
     // Start taking screenshots.
     for (var i=0; i<codeCells.length; i++) {
       let fullSavePath = savePath + `cell_${i}`;
+      goToNext(page, i);
       await screenshots.init(page, fullSavePath);
       await screenshots.start();
       runCell(page, i);
