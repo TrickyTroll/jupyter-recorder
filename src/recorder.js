@@ -11,14 +11,6 @@ async function unselectAll(page) {
     });
 }
 
-async function goToNext(page, cellIndex) {
-    const allCodeCells = await page.$$(".code_cell");
-    let todo = allCodeCells[cellIndex];
-    await page.evaluate((element) => {
-        element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-    }, todo);
-}
-
 async function selectCell(page, cell) {
     // `cell` is an element of `page`.
     // Unselects all cells and selects just one.
@@ -27,13 +19,21 @@ async function selectCell(page, cell) {
     await page.evaluate((element) => element.classList.add("selected"), cell);
 }
 
+async function goToNext(page, cellIndex) {
+    const allCodeCells = await page.$$(".code_cell");
+    let todo = allCodeCells[cellIndex];
+    await page.evaluate((element) => {
+        element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }, todo);
+    await selectCell(page, todo);
+}
+
 async function runCell(page, cellIndex) {
     // `cellIndex` should be an index in the list that contains
     // every cell.
     const allCells = await page.$$(".code_cell");
     let todo = allCells[cellIndex];
     // Selecting cell
-    await selectCell(page, todo);
 
     // Running a cell
     const [button] = await page.$x(
@@ -41,9 +41,9 @@ async function runCell(page, cellIndex) {
         "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
     );
     if (button) {
-        await button.click(); // TODO: wait for cell completion.
+        await button.click();
     }
-    // console.log(todo)
+
     await page.waitForFunction( // This is a mess
         (cell) => cell.children[0].children[0].children[0].childNodes[1].data.split("")[2] !== " ",
         {},
@@ -128,7 +128,6 @@ async function recordAllCode(pageURL, savePath) {
         await page.$eval(".code_cell", (element) => element.scrollIntoView());
 
         // Kernel needs to be restarted each run (and all output cleared)
-        // Python program will probably spawn a new kernel each time.
         await page.evaluate(() => {
             let kernel = document.querySelector("#kernellink");
             kernel.click();
@@ -147,6 +146,8 @@ async function recordAllCode(pageURL, savePath) {
         for (var i = 0; i < codeCells.length; i++) {
             let fullSavePath = savePath + `cell_${i}`;
             await goToNext(page, i);
+            const allCells = await page.$$(".code_cell");
+            let todo = allCells[i];
             await screenshots.init(page, fullSavePath);
             // Start taking screenshots.
             await screenshots.start();
@@ -162,4 +163,4 @@ async function recordAllCode(pageURL, savePath) {
     })();
 }
 
-export { recordAllCode };
+export { recordAllCode }; // Not using `recordNotebook` for now.
