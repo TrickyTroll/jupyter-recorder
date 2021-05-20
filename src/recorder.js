@@ -33,7 +33,7 @@ async function runCell(page, cellIndex) {
     const allCells = await page.$$(".code_cell");
     let todo = allCells[cellIndex];
     // Selecting cell
-    selectCell(page, todo);
+    await selectCell(page, todo);
 
     // Running a cell
     const [button] = await page.$x(
@@ -121,7 +121,6 @@ async function recordAllCode(pageURL, savePath) {
 
         // Kernel needs to be restarted each run (and all output cleared)
         // Python program will probably spawn a new kernel each time.
-        debugger;
         await page.evaluate(() => {
             let kernel = document.querySelector("#kernellink");
             kernel.click();
@@ -139,11 +138,11 @@ async function recordAllCode(pageURL, savePath) {
         // For every code cell
         for (var i = 0; i < codeCells.length; i++) {
             let fullSavePath = savePath + `cell_${i}`;
-            goToNext(page, i);
+            await goToNext(page, i);
             await screenshots.init(page, fullSavePath);
             // Start taking screenshots.
             await screenshots.start();
-            runCell(page, i);
+            await runCell(page, i);
             await page.waitForTimeout(delay);
             await screenshots.stop();
         }
