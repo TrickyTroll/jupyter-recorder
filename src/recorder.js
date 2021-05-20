@@ -41,7 +41,7 @@ async function runCell(page, cellIndex) {
         "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
     );
     if (button) {
-        button.click(); // TODO: wait for cell completion.
+        await button.click(); // TODO: wait for cell completion.
     }
     // console.log(todo)
     await page.waitForFunction( // This is a mess
