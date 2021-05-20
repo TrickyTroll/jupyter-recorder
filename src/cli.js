@@ -14,13 +14,10 @@ function uintToString(uintArray) {
 
 jupyter.stdout.on('data',
     function (data) {
-        console.log('ls command output: ' + data);
         var decodedArray = uintToString(data).split("\n");
         decodedArray.forEach((line) => {
             console.log(line.slice(0, 4))
             if (line.slice(0,4) === "http") {
-                console.log("pushing")
-                console.log(output)
                 output.push(line.split(" ")[0]);
             }
         });
