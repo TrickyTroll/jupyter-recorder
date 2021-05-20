@@ -51,6 +51,13 @@ async function runCell(page, cellIndex) {
     );
 }
 
+function makeProjectDir(projectRoot) {
+    if (projectRoot.slice(-1) === "/") {
+        projectRoot += "/";
+    }
+    fs.mkdir(projectRoot);
+}
+
 function makeRequiredDirs(projectRoot, maxCodeCell) {
     if (projectRoot.slice(-1) !== "/") {
         projectRoot += "/";
@@ -63,12 +70,13 @@ function makeRequiredDirs(projectRoot, maxCodeCell) {
 }
 
 async function recordNotebook(pageURL, savePath) {
+    makeProjectDir(savePath);
     (async () => {
         const screenshots = new PuppeteerMassScreenshots();
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         await page.goto(pageURL, { waitUntil: "networkidle0" });
-        await page.goto("http://localhost:8888/notebooks/python_by_example.ipynb", {
+        await page.goto("pageURL", {
             waitUntil: "networkidle0",
         });
 
