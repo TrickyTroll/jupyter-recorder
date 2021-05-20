@@ -2,45 +2,12 @@ import puppeteer from "puppeteer";
 import fs from 'fs';
 import PuppeteerMassScreenshots from "puppeteer-mass-screenshots";
 
-async function scrollTo(page, secondCell) {
-    await page.evaluate(() => {
-        secondCell.scrollIntoView();
-    });
-}
-
 async function unselectAll(page) {
     await page.evaluate(() => {
         cells = document.getElementsByClassName("cell");
         for (let k = 0; k < cells.length; k++) {
             cells[k].classList.remove("selected");
         }
-    });
-}
-
-async function recordTransition(page, videoPath, firstCell, secondCell) {
-    (async () => {
-        await screenshots.init(page, videosPath);
-        await screenshots.start();
-        await scrollTo(page, secondCell); // I think this is how it works..
-        await screenshots.stop();
-        await browser.close();
-    })();
-}
-
-function delay(time) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, time);
-    });
-}
-
-async function getCount(page) {
-    return await page.$$eval(".cell", (a) => a.length);
-}
-
-async function scrollDown(page) {
-    // Scrolls down to the last cell.
-    await page.$eval(".cell:last-child", (e) => {
-        e.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
     });
 }
 
