@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { recordAllCode } from './src/recorder.js';
+import { getFilePath, getServerChoice } from './src/cli.cjs'
 
-var args = process.argv.slice(2); // Removing 'node' and the name
-// of the program.
+const server = getServerChoice();
+const savePath = getFilePath();
 
-console.log(`Running with args ${args}`);
-recordAllCode(args[0], args[1]);
+recordAllCode(server, savePath);
