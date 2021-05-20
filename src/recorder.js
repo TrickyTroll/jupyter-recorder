@@ -44,20 +44,20 @@ async function scrollDown(page) {
     });
 }
 
-async function selectCell(page, cell) {
-    // `cell` is an element of `page`.
-    // Unselects all cells and selects just one.
-    unselectAll(page);
-    // Select cell at index `cell`.
-    await page.evaluate((element) => element.classList.add("selected"), cell);
-}
-
 async function goToNext(page, cellIndex) {
     const allCodeCells = await page.$$(".code_cell");
     let todo = allCodeCells[cellIndex];
     await page.evaluate((element) => {
         element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }, todo);
+}
+
+async function selectCell(page, cell) {
+    // `cell` is an element of `page`.
+    // Unselects all cells and selects just one.
+    unselectAll(page);
+    // Select cell at index `cell`.
+    await page.evaluate((element) => element.classList.add("selected"), cell);
 }
 
 async function runCell(page, cellIndex) {
