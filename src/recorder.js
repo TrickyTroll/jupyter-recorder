@@ -22,7 +22,7 @@ async function goToNext(page, cellIndex) {
 async function selectCell(page, cell) {
     // `cell` is an element of `page`.
     // Unselects all cells and selects just one.
-    unselectAll(page);
+    await unselectAll(page);
     // Select cell at index `cell`.
     await page.evaluate((element) => element.classList.add("selected"), cell);
 }
