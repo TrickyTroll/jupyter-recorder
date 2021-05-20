@@ -56,7 +56,7 @@ async function goToNext(page, cellIndex) {
     const allCodeCells = await page.$$(".code_cell");
     let todo = allCodeCells[cellIndex];
     await page.evaluate((element) => {
-        element.scrollIntoView();
+        element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }, todo);
 }
 
@@ -76,11 +76,12 @@ async function runCell(page, cellIndex) {
     if (button) {
         button.click(); // TODO: wait for cell completion.
     }
-    page.waitForFunction( // This does not work for now
-        (cell) => { // Cell is an element in the document.
-        let inVal = cell.children[0].children[0].children[0].childNodes[1].data;
-        inVal.split("")[2] !== " "; // This is true when cell is done running.
-        }, todo); // Passing `todo` as the `cell` argument.
+    // console.log(todo)
+    await page.waitForFunction( // This is a mess
+        (cell) => cell.children[0].children[0].children[0].childNodes[1].data.split("")[2] !== " ",
+        {},
+        todo
+    );
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
