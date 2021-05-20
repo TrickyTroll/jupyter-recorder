@@ -28,21 +28,14 @@ async function goToNext(page, cellIndex) {
     await selectCell(page, todo);
 }
 
-async function runCell(page, cellIndex) {
-    // `cellIndex` should be an index in the list that contains
-    // every cell.
-    const allCells = await page.$$(".code_cell");
-    let todo = allCells[cellIndex];
-    // Selecting cell
+async function runCell(page, todo) {
+    // Todo is a cell element from the page.
 
     // Running a cell
-    const [button] = await page.$x(
-        // This is the `run` button.
-        "/html/body/div[3]/div[3]/div[2]/div/div/div[5]/button[1]"
-    );
-    if (button) {
-        await button.click();
-    }
+    await page.evaluate(() => {
+        let run = document.querySelector("#run_int > button:nth-child(1)");
+        run.click();
+    });
 
     await page.waitForFunction( // This is a mess
         (cell) => cell.children[0].children[0].children[0].childNodes[1].data.split("")[2] !== " ",
@@ -151,12 +144,11 @@ async function recordAllCode(pageURL, savePath) {
             await screenshots.init(page, fullSavePath);
             // Start taking screenshots.
             await screenshots.start();
-            await runCell(page, i);
+            await runCell(page, todo);
             await page.waitForTimeout(delay);
             await screenshots.stop();
-        }
+        } await page.waitForTimeout(delay);
         // Not sure why this next line is needed.
-        await page.waitForTimeout(delay);
 
         // Closing
         await browser.close();
