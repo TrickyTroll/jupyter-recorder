@@ -52,13 +52,6 @@ async function runCell(page, todo) {
     );
 }
 
-function makeProjectDir(projectRoot) {
-    if (projectRoot.slice(-1) === '/') {
-        projectRoot += '/';
-    }
-    fs.mkdir(projectRoot);
-}
-
 function makeRequiredDirs(projectRoot, maxCodeCell) {
     if (projectRoot.slice(-1) !== '/') {
         projectRoot += '/';
