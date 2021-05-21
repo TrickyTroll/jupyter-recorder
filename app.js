@@ -1,6 +1,10 @@
 #!/usr/bin/env node
-import { recordAllCode } from './src/recorder.js';
-import { getInfo } from './src/cli.js';
+import { recordFromArgs } from './src/cli.js';
+import { lookpath } from "lookpath";
 
-const allInfo = await getInfo()
-(recordAllCode(allInfo.server , allInfo.filePath));
+let path = await lookpath("jupyter")
+if (!path) {
+    throw new Error("\x1b[31mCould no find jupyter in your path.");
+}
+
+recordFromArgs();
