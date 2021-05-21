@@ -57,8 +57,6 @@ export function recordFromArgs() {
         });
     });
 
-    const fileChoices = [];
-
     function promptUser() {
         inquirer
             .prompt([
@@ -78,7 +76,17 @@ export function recordFromArgs() {
                 console.log(
                     `Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}`
                 );
-                recordAllCode(answers.server, answers.savePath);
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        message: 'Which notebook do you want to record?',
+                        name: 'file',
+                        choices: getFilesForServer(answers.server)
+                    }
+                ])
+                .then((fileAns) => {
+                    recordAllCode(answers.server, answers.savePath, fileAns.file);
+                });
             })
             .catch((error) => {
                 if (error.isTtyError) {
