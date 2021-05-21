@@ -16,6 +16,7 @@
     "commander": "^7.2.0",
     "esm": "^3.2.25",
     "inquirer": "^8.0.0",
+    "lookpath": "^1.2.1",
     "puppeteer": "^9.1.1",
     "puppeteer-mass-screenshots": "^1.0.15",
     "puppeteer-video-recorder": "^1.0.3"
