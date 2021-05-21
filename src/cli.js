@@ -51,7 +51,7 @@ export function getInfo() {
         ])
         .then(answers => {
             let filePath = getFilePath();
-            return { answers, filePath }
+            return { server: answers, filePath: filePath }
         })
         .catch(error => {
             if (error.isTtyError) {
