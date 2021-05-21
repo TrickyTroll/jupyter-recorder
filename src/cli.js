@@ -53,12 +53,13 @@ export function recordFromArgs() {
                 },
                 {
                     type: 'input',
-                    name: 'file_path',
+                    name: 'savePath',
                     message: "Where do you want to save your files?",
                 },
             ])
             .then(answers => {
-                recordAllCode(answers.server, answers.file_path);
+                console.log(`Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}`)
+                recordAllCode(answers.server, answers.savePath);
             })
             .catch(error => {
                 if (error.isTtyError) {
