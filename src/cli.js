@@ -77,9 +77,6 @@ export function recordFromArgs() {
                 },
             ])
             .then((answers) => {
-                console.log(
-                    `Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}`
-                );
                 inquirer
                     .prompt([
                         {
@@ -90,6 +87,9 @@ export function recordFromArgs() {
                         }
                     ])
                     .then((fileAns) => {
+                        console.log(
+                            `Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}\n\t* Using file: ${fileAns.file}`
+                        );
                         recordAllCode(answers.server, answers.savePath, fileAns.file);
                     });
             })
