@@ -114,16 +114,14 @@ async function recordNotebook(pageURL, savePath) {
 }
 
 async function recordAllCode(pageURL, savePath, fileName) {
-    // Fixing url for appends
-    if (pageURL.split(-1) !== '/') {
-        pageURL += '/';
-    }
     (async () => {
         const screenshots = new PuppeteerMassScreenshots();
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
         await page.goto(pageURL, { waitUntil: 'networkidle0' });
-        await page.goto(`pageUrl${fileName}`, {
+        const notebookURL = pageURL.split("/").slice(0,-1).join("/")
+        console.log(`Loading ${notebookURL}/notebooks/${fileName}`)
+        await page.goto(`${notebookURL}/notebooks/${fileName}`, {
             waitUntil: 'networkidle0',
         });
 
