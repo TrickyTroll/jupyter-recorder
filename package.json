@@ -1,27 +1,27 @@
 {
-  "name": "jupyter-recorder",
-  "version": "1.0.0",
-  "description": "Recording videos from jupyter notebooks.",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "bin": {
-    "recorder": "./app.js"
-  },
-  "author": "Etienne Parent",
-  "license": "MIT",
-  "type": "module",
-  "dependencies": {
-    "commander": "^7.2.0",
-    "esm": "^3.2.25",
-    "inquirer": "^8.0.0",
-    "lookpath": "^1.2.1",
-    "puppeteer": "^9.1.1",
-    "puppeteer-mass-screenshots": "^1.0.15",
-    "puppeteer-video-recorder": "^1.0.3"
-  },
-  "devDependencies": {
-    "prettier": "2.3.0"
-  }
+    "name": "jupyter-recorder",
+    "version": "1.0.0",
+    "description": "Recording videos from jupyter notebooks.",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+        "recorder": "./app.js"
+    },
+    "author": "Etienne Parent",
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+        "commander": "^7.2.0",
+        "esm": "^3.2.25",
+        "inquirer": "^8.0.0",
+        "lookpath": "^1.2.1",
+        "puppeteer": "^9.1.1",
+        "puppeteer-mass-screenshots": "^1.0.15",
+        "puppeteer-video-recorder": "^1.0.3"
+    },
+    "devDependencies": {
+        "prettier": "2.3.0"
+    }
 }
