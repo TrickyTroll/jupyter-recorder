@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { recordAllCode } from './src/recorder.js';
-import { getFilePath, getServerChoice } from './src/cli.js';
+import { getInfo } from './src/cli.js';
 
+const allInfo = getInfo();
 
-const server = await getServerChoice();
-//const savePath = getFilePath();
-
-// recordAllCode(server, savePath);
+recordAllCode(allInfo.server , allInfo.filePath);
