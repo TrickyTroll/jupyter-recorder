@@ -50,7 +50,6 @@ export function recordFromArgs() {
     // Blocks here until return since function is sync
     const servers = getJupyterServers();
 
-    console.log(`List of servers: ${servers}`);
 
     const allChoices = [
         new inquirer.Separator(' = server options = '),
@@ -81,7 +80,6 @@ export function recordFromArgs() {
                 console.log(
                     `Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}`
                 );
-                console.log(getFilesForServer(answers.server))
                 inquirer
                     .prompt([
                         {
@@ -92,7 +90,6 @@ export function recordFromArgs() {
                         }
                     ])
                     .then((fileAns) => {
-                        console.log(`answers are: ${answers}`)
                         recordAllCode(answers.server, answers.savePath, fileAns.file);
                     });
             })
