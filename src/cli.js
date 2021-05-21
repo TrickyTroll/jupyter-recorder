@@ -26,7 +26,7 @@ function getJupyterServers() {
     return parsed;
 }
 
-export function getInfo() {
+export async function getInfo() {
 
     // Blocks here until return since function is sync
     const servers = getJupyterServers(); 
@@ -40,27 +40,29 @@ export function getInfo() {
         });
 
     });
-    inquirer
-        .prompt([
-            {
-                type: 'checkbox',
-                message: 'Select your server',
-                name: 'server',
-                choices: allChoices,
-            }
-        ])
-        .then(answers => {
-            let filePath = getFilePath();
-            return { server: answers, filePath: filePath }
-        })
-        .catch(error => {
-            if (error.isTtyError) {
-                console.log("Prompt couldn't be rendered in the current environment.")
-            } else {
-                console.log("Something went wrong.")
-            }
-        });
 
+    function promptUser() {
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    message: 'Select your server',
+                    name: 'server',
+                    choices: allChoices,
+                }
+            ])
+            .then(answers => {
+                let filePath = getFilePath();
+                return { server: answers, filePath: filePath }
+            })
+            .catch(error => {
+                if (error.isTtyError) {
+                    console.log("Prompt couldn't be rendered in the current environment.")
+                } else {
+                    console.log("Something went wrong.")
+                }
+            });
+    }
     function getFilePath() {
 
         const question = [
@@ -75,4 +77,6 @@ export function getInfo() {
             return answer.file_path;
         });
     }
+
+    return new Promise(promptUser)
 }
