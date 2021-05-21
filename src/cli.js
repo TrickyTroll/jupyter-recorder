@@ -14,8 +14,9 @@ function parseOutput(output) {
     var decodedArray = uintToString(output).split('\n');
     decodedArray.forEach((line) => {
         if (line.slice(0, 4) === 'http') {
-            parsed.servers.push(line.split(' ')[0]);
-            parsed.paths.push(line.split(' ')[-1]);
+            let splitted = line.split(' ')
+            parsed.servers.push(splitted[0]);
+            parsed.paths.push(splitted.pop());
         }
     });
     return parsed;
@@ -32,13 +33,17 @@ function getFilesForServer(serverChoice) {
     const parsed = parseOutput(jupyter.stdout);
     const index = parsed.servers.indexOf(serverChoice);
     let path = parsed.paths[index]
-    fs.readdirSync(path, function(err, items) {
+    let allFiles = fs.readdirSync(path, function(err, items) {
         if (err) { 
             throw new Error(`Could not read the contents of ${path}.`)
-        } else {
+        } else { // Not taking dotfiles into account.
             return items;
         }
     });
+    allFiles = allFiles.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
+    // Only returning notebooks.
+    allFiles = allFiles.filter(item => item.split(".").pop() === "ipynb");
+    return allFiles;
 }
 
 export function recordFromArgs() {
@@ -76,17 +81,20 @@ export function recordFromArgs() {
                 console.log(
                     `Using:\n\t* Server: ${answers.server}\n\t* Saving at: ${answers.savePath}`
                 );
-                inquirer.prompt([
-                    {
-                        type: 'list',
-                        message: 'Which notebook do you want to record?',
-                        name: 'file',
-                        choices: getFilesForServer(answers.server)
-                    }
-                ])
-                .then((fileAns) => {
-                    recordAllCode(answers.server, answers.savePath, fileAns.file);
-                });
+                console.log(getFilesForServer(answers.server))
+                inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            message: 'Which notebook do you want to record?',
+                            name: 'file',
+                            choices: getFilesForServer(answers.server)
+                        }
+                    ])
+                    .then((fileAns) => {
+                        console.log(`answers are: ${answers}`)
+                        recordAllCode(answers.server, answers.savePath, fileAns.file);
+                    });
             })
             .catch((error) => {
                 if (error.isTtyError) {
