@@ -42,6 +42,7 @@ export function recordFromArgs() {
     });
 
     function promptUser() {
+
         inquirer
             .prompt([
                 {
@@ -49,34 +50,23 @@ export function recordFromArgs() {
                     message: 'Select your server',
                     name: 'server',
                     choices: allChoices,
-                }
+                },
+                {
+                    type: 'input',
+                    name: 'file_path',
+                    message: "Where do you want to save your files?",
+                },
             ])
             .then(answers => {
-                let filePath = getFilePath();
-                recordAllCode(answers, filePath)
+                recordAllCode(answers.server, answers.file_path);
             })
             .catch(error => {
                 if (error.isTtyError) {
                     console.log("Prompt couldn't be rendered in the current environment.")
                 } else {
-                    console.log("Something went wrong.")
+                    console.log(`Something went wrong.\n${error}`)
                 }
             });
     }
-    function getFilePath() {
-
-        const question = [
-            {
-            type: 'input',
-            name: 'file_path',
-            message: "Where do you want to save your files?",
-            },
-        ]
-
-        inquirer.prompt(question).then((answer) => {
-            return answer.file_path;
-        });
-    }
-
-    return new Promise(promptUser)
+    promptUser();
 }
