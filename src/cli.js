@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import { spawnSync } from 'child_process';
+import { get } from 'http';
 
 
 function uintToString(uintArray) {
@@ -25,7 +26,7 @@ function getJupyterServers() {
     return parsed;
 }
 
-export function getServerChoice() {
+export function getInfo() {
 
     // Blocks here until return since function is sync
     const servers = getJupyterServers(); 
@@ -35,7 +36,7 @@ export function getServerChoice() {
     const allChoices = [new inquirer.Separator(' = server options = '), { name: 'New server' }];
     servers.forEach(element => {
         allChoices.push({
-            name: element.toString()
+            name: element.toString() // Adding every running server as an option.
         });
 
     });
@@ -49,7 +50,8 @@ export function getServerChoice() {
             }
         ])
         .then(answers => {
-            return answers;
+            let filePath = getFilePath();
+            return { answers, filePath }
         })
         .catch(error => {
             if (error.isTtyError) {
@@ -58,19 +60,19 @@ export function getServerChoice() {
                 console.log("Something went wrong.")
             }
         });
-}
 
-export function getFilePath() {
+    function getFilePath() {
 
-    const question = [
-        {
-          type: 'input',
-          name: 'file_path',
-          message: "Where do you want to save your files?",
-        },
-    ]
+        const question = [
+            {
+            type: 'input',
+            name: 'file_path',
+            message: "Where do you want to save your files?",
+            },
+        ]
 
-    inquirer.prompt(question).then((answer) => {
-        return answer.file_path;
-    });
+        inquirer.prompt(question).then((answer) => {
+            return answer.file_path;
+        });
+    }
 }
