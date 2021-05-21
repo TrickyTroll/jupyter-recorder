@@ -9,11 +9,12 @@ function uintToString(uintArray) {
 }
 
 function parseOutput(output) {
-    const parsed = [];
+    const parsed = {servers: [], paths: []};
     var decodedArray = uintToString(output).split('\n');
     decodedArray.forEach((line) => {
         if (line.slice(0, 4) === 'http') {
-            parsed.push(line.split(' ')[0]);
+            parsed.servers.push(line.split(' ')[0]);
+            parsed.paths.push(line.split(' ')[-1]);
         }
     });
     return parsed;
@@ -22,7 +23,11 @@ function parseOutput(output) {
 function getJupyterServers() {
     const jupyter = spawnSync('jupyter', ['notebook', 'list']);
     var parsed = parseOutput(jupyter.stdout);
-    return parsed;
+    return parsed.servers;
+}
+
+function getFilesForServer(serverPath) {
+
 }
 
 export function recordFromArgs() {
@@ -40,6 +45,8 @@ export function recordFromArgs() {
             name: element.toString(), // Adding every running server as an option.
         });
     });
+
+    const fileChoices = [];
 
     function promptUser() {
         inquirer
