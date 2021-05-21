@@ -1,5 +1,5 @@
-const inquirer = require('inquirer');
-const { spawnSync } = require('child_process');
+import inquirer from 'inquirer';
+import { spawnSync } from 'child_process';
 
 
 function uintToString(uintArray) {
@@ -27,6 +27,7 @@ function getJupyterServers() {
 
 export function getServerChoice() {
 
+    // Blocks here until return since function is sync
     const servers = getJupyterServers(); 
 
     console.log(`List of servers: ${servers}`)
