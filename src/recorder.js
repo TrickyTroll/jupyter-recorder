@@ -70,54 +70,13 @@ function makeRequiredDirs(projectRoot, maxCodeCell) {
     }
 }
 
-async function recordNotebook(pageURL, savePath) {
-    makeProjectDir(savePath);
-    (async () => {
-        const screenshots = new PuppeteerMassScreenshots();
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto(pageURL, { waitUntil: 'networkidle0' });
-        await page.goto('pageURL', {
-            waitUntil: 'networkidle0',
-        });
-
-        const delay = 3000;
-        // $$ means querySelectorAll
-        const cells = await page.$$('.cell');
-        const maxCell = cells.length;
-
-        // Going to first cell
-        await page.$eval('.cell', (e) => {
-            e.scrollIntoView();
-        });
-
-        // Start taking screenshots.
-        let count = 0;
-        await screenshots.init(page, savePath);
-        await screenshots.start();
-        do {
-            await page.$eval('.cell:last-child', (e) => {
-                e.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'end',
-                    inline: 'end',
-                });
-            });
-            count++;
-        } while (maxCell > count);
-        await page.waitForTimeout(delay);
-
-        // Closing
-        await screenshots.stop();
-        await browser.close();
-    })();
-}
-
 async function recordAllCode(pageURL, savePath, fileName) {
     (async () => {
+        // Launching the web page
         const screenshots = new PuppeteerMassScreenshots();
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
+        // This first page needs to be loaded first for authentification.
         await page.goto(pageURL, { waitUntil: 'networkidle0' });
         const notebookURL = pageURL.split("/").slice(0,-1).join("/")
         console.log(`Loading ${notebookURL}/notebooks/${fileName}`)
