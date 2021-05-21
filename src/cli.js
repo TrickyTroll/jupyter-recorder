@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import fs from 'fs';
 import { recordAllCode } from './recorder.js';
 import { spawnSync } from 'child_process';
 
@@ -26,8 +27,18 @@ function getJupyterServers() {
     return parsed.servers;
 }
 
-function getFilesForServer(serverPath) {
-
+function getFilesForServer(serverChoice) {
+    const jupyter = spawnSync('jupyter', ['notebook', 'list']);
+    const parsed = parseOutput(jupyter.stdout);
+    const index = parsed.servers.indexOf(serverChoice);
+    let path = parsed.paths[index]
+    fs.readdirSync(path, function(err, items) {
+        if (err) { 
+            throw new Error(`Could not read the contents of ${path}.`)
+        } else {
+            return items;
+        }
+    });
 }
 
 export function recordFromArgs() {
