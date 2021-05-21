@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
+import { recordAllCode } from './recorder.js';
 import { spawnSync } from 'child_process';
-import { get } from 'http';
 
 
 function uintToString(uintArray) {
@@ -26,7 +26,7 @@ function getJupyterServers() {
     return parsed;
 }
 
-export async function getInfo() {
+export function recordFromArgs() {
 
     // Blocks here until return since function is sync
     const servers = getJupyterServers(); 
@@ -53,7 +53,7 @@ export async function getInfo() {
             ])
             .then(answers => {
                 let filePath = getFilePath();
-                return { server: answers, filePath: filePath }
+                recordAllCode(answers, filePath)
             })
             .catch(error => {
                 if (error.isTtyError) {
