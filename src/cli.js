@@ -4,14 +4,14 @@ import { recordAllCode } from './recorder.js';
 import { spawnSync } from 'child_process';
 
 function uintToString(uintArray) {
-    var encodedString = String.fromCharCode.apply(null, uintArray),
+    let encodedString = String.fromCharCode.apply(null, uintArray),
         decodedString = decodeURIComponent(escape(encodedString));
     return decodedString;
 }
 
 function parseOutput(output) {
     const parsed = { servers: [], paths: [] };
-    var decodedArray = uintToString(output).split('\n');
+    let decodedArray = uintToString(output).split('\n');
     decodedArray.forEach((line) => {
         if (line.slice(0, 4) === 'http') {
             let splitted = line.split(' ');
@@ -24,7 +24,7 @@ function parseOutput(output) {
 
 function getJupyterServers() {
     const jupyter = spawnSync('jupyter', ['notebook', 'list']);
-    var parsed = parseOutput(jupyter.stdout);
+    let parsed = parseOutput(jupyter.stdout);
     return parsed.servers;
 }
 

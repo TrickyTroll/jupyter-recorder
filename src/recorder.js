@@ -32,31 +32,40 @@ async function goToNext(page, cellIndex) {
     await selectCell(page, todo);
 }
 
-async function runCell(page, todo) {
+async function runCell(page, todo, screenshots) {
     // Todo is a cell element from the page.
-
     // Running a cell
-    await page.evaluate(() => {
-        let run = document.querySelector('#run_int > button:nth-child(1)');
-        run.click();
-    });
-
-    await page.waitForFunction(
-        // This is a mess
-        (cell) =>
-            cell.children[0].children[0].children[0].childNodes[1].data.split(
-                ''
-            )[2] !== ' ',
-        {},
-        todo
-    );
+    await screenshots.start();
+    await Promise.all([
+        page.evaluate(() => {
+            let run = document.querySelector('#run_int > button:nth-child(1)');
+            run.click();
+        }),
+        page.waitForFunction(
+            // This is a mess
+            (
+                cell // Waiting for the text in the in [ ] part of the page becomes a number.
+            ) =>
+                cell.children[0].children[0].children[0].childNodes[1].data.split(
+                    ''
+                )[2] !== ' ' ||
+                cell.children[0].children[0].children[0].childNodes[1].data.split(
+                    ''
+                )[2] !== '*',
+            {},
+            todo
+        ),
+    ]);
+    let delay = 3000;
+    await page.waitForTimeout(delay);
+    await screenshots.stop();
 }
 
 function makeRequiredDirs(projectRoot, maxCodeCell) {
     if (projectRoot.slice(-1) !== '/') {
         projectRoot += '/';
     }
-    for (var i = 0; i < maxCodeCell; i++) {
+    for (let i = 0; i < maxCodeCell; i++) {
         fs.mkdir(projectRoot + `cell_${i}`, { recursive: true }, (err) => {
             if (err) throw err;
         });
@@ -71,8 +80,8 @@ async function recordAllCode(pageURL, savePath, fileName) {
         const page = await browser.newPage();
         // This first page needs to be loaded first for authentification.
         await page.goto(pageURL, { waitUntil: 'networkidle0' });
-        const notebookURL = pageURL.split("/").slice(0,-1).join("/")
-        console.log(`Loading ${notebookURL}/notebooks/${fileName}`)
+        const notebookURL = pageURL.split('/').slice(0, -1).join('/');
+        console.log(`Loading ${notebookURL}/notebooks/${fileName}`);
         await page.goto(`${notebookURL}/notebooks/${fileName}`, {
             waitUntil: 'networkidle0',
         });
@@ -107,17 +116,14 @@ async function recordAllCode(pageURL, savePath, fileName) {
             savePath += '/';
         }
         // For every code cell
-        for (var i = 0; i < codeCells.length; i++) {
+        for (let i = 0; i < codeCells.length; i++) {
             let fullSavePath = savePath + `cell_${i}`;
             await goToNext(page, i);
             const allCells = await page.$$('.code_cell');
             let todo = allCells[i];
             await screenshots.init(page, fullSavePath);
             // Start taking screenshots.
-            await screenshots.start();
-            await runCell(page, todo);
-            await page.waitForTimeout(delay);
-            await screenshots.stop();
+            await runCell(page, todo, screenshots);
         }
         await page.waitForTimeout(delay);
         // Not sure why this next line is needed.
