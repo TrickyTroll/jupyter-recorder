@@ -35,29 +35,24 @@ async function goToNext(page, cellIndex) {
 async function runCell(page, todo, screenshots) {
     // Todo is a cell element from the page.
     // Running a cell
-    await screenshots.start();
-    await Promise.all([
-        page.evaluate(() => {
-            let run = document.querySelector('#run_int > button:nth-child(1)');
-            run.click();
-        }),
-        page.waitForFunction(
-            // This is a mess
-            (
-                cell // Waiting for the text in the in [ ] part of the page becomes a number.
-            ) =>
-                cell.children[0].children[0].children[0].childNodes[1].data.split(
-                    ''
-                )[2] !== ' ' ||
-                cell.children[0].children[0].children[0].childNodes[1].data.split(
-                    ''
-                )[2] !== '*',
-            {},
-            todo
-        ),
-    ]);
+    // Letting some time to run
     let delay = 3000;
     await page.waitForTimeout(delay);
+    await screenshots.start();
+    await page.evaluate(
+        // This is a mess
+        // Waiting for the text in the in [ ] part of the page becomes a number.
+        (cell) => {
+            let toggle = cell.children[0].children[0].children[0].childNodes[1].data.split('')[2]
+            console.log(`State is: ${toggle}`)
+            while (!(toggle !== ' ' || toggle !== '*')) {
+                let toClick = document.querySelector('#run_int > button:nth-child(1)');
+                toClick.click();
+            }
+        }, todo
+    );
+    await page.waitForTimeout(delay);
+
     await screenshots.stop();
 }
 
@@ -115,11 +110,13 @@ async function recordAllCode(pageURL, savePath, fileName) {
         if (savePath.split(-1) !== '/') {
             savePath += '/';
         }
+        // Defining code cells.
+        const allCells = await page.$$('.code_cell');
         // For every code cell
         for (let i = 0; i < codeCells.length; i++) {
             let fullSavePath = savePath + `cell_${i}`;
             await goToNext(page, i);
-            const allCells = await page.$$('.code_cell');
+            await page.waitForTimeout(1000)
             let todo = allCells[i];
             await screenshots.init(page, fullSavePath);
             // Start taking screenshots.
